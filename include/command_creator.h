@@ -14,6 +14,7 @@
 #include <std_msgs/Float32.h>
 
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Vector3.h>
 #include <gazebo_msgs/ModelStates.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -21,7 +22,11 @@
 
 namespace rosdrone_Command
 {
+
+  static geometry_msgs::Twist twist;
+
   class commandCreator{
+
     public:
       // constructor
       commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle& np);
@@ -31,8 +36,8 @@ namespace rosdrone_Command
       // major functions
       void spinCommand();
       void updateOwnMeasures(const drones::EstimatedDronePositionArray& msg);
-      Eigen::Vector4d getCommand();
 
+      static geometry_msgs::Twist getCommand(){ return twist; };
 
     private:
 
@@ -40,6 +45,7 @@ namespace rosdrone_Command
       void getROSParameters();
       void setRelativeBearingDesired();
       void calculateVelocityCommand();
+      void updateTwist();
       void publishError();
       void plotDesiredBearings();
       double getYawFromQuaternion(const geometry_msgs::Quaternion& q);

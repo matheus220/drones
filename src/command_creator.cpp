@@ -47,13 +47,15 @@ void commandCreator::spinCommand()
   return;
 }
 
-Eigen::Vector4d commandCreator::getCommand()
+void commandCreator::updateTwist()
 {
-  Eigen::Vector4d command;
-  command << velocityCommand.u,
-             velocityCommand.w;
+  twist.linear.x = velocityCommand.u.x();
+  twist.linear.y = velocityCommand.u.y();
+  twist.linear.z = velocityCommand.u.z();
 
-  return command;
+  twist.angular.x = 0;
+  twist.angular.y = 0;
+  twist.angular.z = velocityCommand.w;
 }
 
 void commandCreator::updateOwnMeasures(const drones::EstimatedDronePositionArray& msg)
@@ -148,6 +150,7 @@ void commandCreator::calculateVelocityCommand()
   }
 
   velocityCommand = {u, w};
+  updateTwist();
 }
 
 double commandCreator::DistanceController(double distance)

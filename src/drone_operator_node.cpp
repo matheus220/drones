@@ -11,8 +11,7 @@ int main(int argc, char** argv)
 
   rosdrone_Detector::targetDetector detector(nhg, nhp);
 
-  double mass = 1.5;
-  rosdrone_Controller::outerLoopRT controller(nhg, nhp, mass);
+  rosdrone_Controller::outerLoopRT controller(nhg);
 
   rosdrone_Command::commandCreator command(nhg, nhp);
 
@@ -36,7 +35,6 @@ int main(int argc, char** argv)
     command.updateOwnMeasures(detector.getMeasures());
     command.spinCommand();
 
-    controller.updateSetpoint(command.getCommand());
     controller.spinControl();
 
     rate.sleep();
