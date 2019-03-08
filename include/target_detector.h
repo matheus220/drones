@@ -121,6 +121,13 @@ class targetDetector
       std::vector<std::string> uav_names;
     } paramsROS;
 
+    struct InfoDetection
+    {
+      Eigen::Vector3d t_ball2drone;
+      Eigen::Vector3d t_camera2drone;
+      double ballRadius;
+    } infoDetection;
+
     // private variables
     geometry_msgs::Pose poses_gazebo;
     drones::EstimatedDronePositionArray arrayOutputMessage;

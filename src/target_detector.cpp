@@ -18,6 +18,9 @@ targetDetector::targetDetector(const ros::NodeHandle& ng, const ros::NodeHandle&
   // initialize values
   sat_ = 100;
   val_ = 100;
+  infoDetection.ballRadius = 0.09;
+  infoDetection.t_ball2drone = Eigen::Vector3d(0,0,0.15);
+  infoDetection.t_camera2drone = Eigen::Vector3d(0.07, 0.0, 0.055);
   getParametersROS();
 
   ROS_INFO_STREAM(paramsROS.my_name << " Target Detector initialized");
@@ -280,7 +283,7 @@ drones::EstimatedDronePosition targetDetector::createMessageOutput(const std::st
 
   outputMessage.estimator = nameDetector;
   outputMessage.estimated = nameDetected;
-  outputMessage.distance = camInfo.K(0, 0) * 0.09 / circle[2];
+  outputMessage.distance = camInfo.K(0, 0) * infoDetection.ballRadius / circle[2];
 
   Eigen::Vector3d P;
   P << circle[0], circle[1], 1;
@@ -288,27 +291,18 @@ drones::EstimatedDronePosition targetDetector::createMessageOutput(const std::st
   Eigen::Vector3d bearingRaw;
   bearingRaw = camInfo.R * camInfo.K.inverse() * P;
 
-  Eigen::Quaterniond q;
-  tf::quaternionMsgToEigen(poses_gazebo.orientation, q);
+  // Transformation from ball frame to drone frame
+  Eigen::Vector3d bearing = bearingRaw * outputMessage.distance - infoDetection.t_ball2drone;
 
-  Eigen::Vector3d p;
-  tf::pointMsgToEigen(poses_gazebo.position, p);
+  // Transformation from camera frame to drone frame
+  bearing = infoDetection.t_camera2drone + bearing;
 
-  Eigen::Matrix3d rotMatrix = q.normalized().toRotationMatrix();
-
-  Eigen::Vector3d neighborPositionWorldFrame = p + (rotMatrix * bearingRaw).normalized() * outputMessage.distance;
-  neighborPositionWorldFrame.z() -= 0.15; // Distance between the target and the CM of the drone
-
-  Eigen::Vector3d bearingWorldFrame = neighborPositionWorldFrame - p;
-  outputMessage.distance = bearingWorldFrame.norm();
-
-  Eigen::Vector3d bearing = rotMatrix.transpose() * bearingWorldFrame;
+  // Update distance
+  outputMessage.distance = bearing.norm();
 
   bearing.normalize();
 
-  outputMessage.bearingVector.x = bearing.x();
-  outputMessage.bearingVector.y = bearing.y();
-  outputMessage.bearingVector.z = bearing.z();
+  tf::vectorEigenToMsg(bearing, outputMessage.bearingVector);
 
   outputMessage.poseEstimator = poses_gazebo;
 
