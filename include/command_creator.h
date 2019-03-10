@@ -35,7 +35,6 @@ namespace rosdrone_Command
 
       // major functions
       void spinCommand();
-      void updateOwnMeasures(const drones::EstimatedDronePositionArray& msg);
 
       static geometry_msgs::Twist getCommand(){ return twist; };
 

@@ -71,8 +71,7 @@ class targetDetector
   public:
     targetDetector(const ros::NodeHandle& ng, const ros::NodeHandle& nl);
 
-    void detectTargets();
-    inline drones::EstimatedDronePositionArray getMeasures() { return arrayOutputMessage; };
+    void spinDetector();
 
   private:
     // private functions

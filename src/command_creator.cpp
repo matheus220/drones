@@ -24,6 +24,10 @@ commandCreator::commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle&
       bearingSub.push_back(aux);
     }
   }
+  std::string subsName = "/uav" + std::to_string(drone_ID) + "/relative_bearing";
+  ros::Subscriber my_sub = nh.subscribe(subsName, 10, &commandCreator::bearingMeasuresCallback, this);
+  bearingSub.push_back(my_sub);
+
   poseSub = nh.subscribe("/gazebo/model_states", 2, &commandCreator::posesCallback, this);
   markers_pub = nh.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 5);
   if(drone_ID == 2) errorFPub = nh.advertise<std_msgs::Float32>("errorF", 2);
@@ -56,11 +60,6 @@ void commandCreator::updateTwist()
   twist.angular.x = 0;
   twist.angular.y = 0;
   twist.angular.z = velocityCommand.w;
-}
-
-void commandCreator::updateOwnMeasures(const drones::EstimatedDronePositionArray& msg)
-{
-  bearingMeasuresCallback(msg);
 }
 
 void commandCreator::publishError()

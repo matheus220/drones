@@ -5,7 +5,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "target_detector_node");
+  ros::init(argc, argv, "drone_operator_node");
   ros::NodeHandle nhg, nhp("~");
   ROS_INFO("Main Hover Node Launched");
 
@@ -30,9 +30,9 @@ int main(int argc, char** argv)
   {
     ROS_INFO_THROTTLE(5,"Hover Node Running");
     ros::spinOnce();
-    detector.detectTargets();
 
-    command.updateOwnMeasures(detector.getMeasures());
+    detector.spinDetector();
+
     command.spinCommand();
 
     controller.spinControl();

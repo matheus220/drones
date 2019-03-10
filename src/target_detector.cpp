@@ -26,7 +26,7 @@ targetDetector::targetDetector(const ros::NodeHandle& ng, const ros::NodeHandle&
   ROS_INFO_STREAM(paramsROS.my_name << " Target Detector initialized");
 }
 
-void targetDetector::detectTargets()
+void targetDetector::spinDetector()
 {
   if (img_received)
   {
