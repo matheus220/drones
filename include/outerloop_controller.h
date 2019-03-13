@@ -18,7 +18,7 @@
 #include <mavros_msgs/PositionTarget.h>
 #include <geometry_msgs/PoseStamped.h>
 
-namespace rosdrone_Controller
+namespace rosdrone
 {
   class outerLoopRT{
     public:
@@ -38,7 +38,7 @@ namespace rosdrone_Controller
     private:
 
       // private functions
-      void controlStartingPosition();
+      void setVelocityCommand();
       void setControlOutput();
       void spinUp(double fraction);
 
@@ -54,16 +54,9 @@ namespace rosdrone_Controller
         Eigen::Matrix3d R;
       } pose;
 
-      struct Setpoint
-      {
-        Eigen::Vector3d vel;
-        Eigen::Vector3d pos;
-        double yaw_rate;
-      } setpoint;
-
       // ROS Communication
       ros::NodeHandle nh;
-      ros::Publisher controlPub, control2Pub;
+      ros::Publisher controlPub;
       ros::Subscriber poseSub, stateSub;
 
       ros::ServiceClient set_mode_client, arming_client;
@@ -73,8 +66,7 @@ namespace rosdrone_Controller
       // Messages
       geometry_msgs::PoseStamped poseMsgIn;
       mavros_msgs::State current_state;
-      mavros_msgs::PositionTarget pos_target;
-      geometry_msgs::Twist vel_comm;
+      geometry_msgs::Twist vel_command;
 
       // private variables
       double last_service_call = 0;

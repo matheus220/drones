@@ -1,8 +1,9 @@
 #include "command_creator.h"
 
 using namespace std;
+geometry_msgs::Twist sharedTwist;
 
-namespace rosdrone_Command
+namespace rosdrone
 {
 // constructor
 commandCreator::commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle& np) : nh(ng), nhp(np)
@@ -47,19 +48,18 @@ void commandCreator::spinCommand()
 {
   calculateVelocityCommand();
   publishError();
-  plotDesiredBearings();
   return;
 }
 
 void commandCreator::updateTwist()
 {
-  twist.linear.x = velocityCommand.u.x();
-  twist.linear.y = velocityCommand.u.y();
-  twist.linear.z = velocityCommand.u.z();
+  sharedTwist.linear.x = velocityCommand.u.x();
+  sharedTwist.linear.y = velocityCommand.u.y();
+  sharedTwist.linear.z = velocityCommand.u.z();
 
-  twist.angular.x = 0;
-  twist.angular.y = 0;
-  twist.angular.z = velocityCommand.w;
+  sharedTwist.angular.x = 0;
+  sharedTwist.angular.y = 0;
+  sharedTwist.angular.z = velocityCommand.w;
 }
 
 void commandCreator::publishError()

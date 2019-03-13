@@ -20,10 +20,11 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <visualization_msgs/Marker.h>
 
-namespace rosdrone_Command
-{
+extern geometry_msgs::Twist sharedTwist;
 
-  static geometry_msgs::Twist twist;
+namespace rosdrone
+{
+  //static geometry_msgs::Twist getCommand(){ return twist; };
 
   class commandCreator{
 
@@ -36,7 +37,7 @@ namespace rosdrone_Command
       // major functions
       void spinCommand();
 
-      static geometry_msgs::Twist getCommand(){ return twist; };
+      //
 
     private:
 

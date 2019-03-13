@@ -1,7 +1,7 @@
 #include "outerloop_controller.h"
 #include "command_creator.h"
 
-namespace rosdrone_Controller
+namespace rosdrone
 {
   // constructor
   outerLoopRT::outerLoopRT(const ros::NodeHandle& n) : nh(n)
@@ -18,8 +18,6 @@ namespace rosdrone_Controller
     // initialize values
     offb_set_mode.request.custom_mode = "OFFBOARD";
     arm_cmd.request.value = true;
-    pos_target.type_mask = 0b011111000111;
-    pos_target.coordinate_frame = pos_target.FRAME_BODY_NED;
 
     ROS_INFO("Drone initialized");
   }
@@ -32,7 +30,7 @@ namespace rosdrone_Controller
 
   void outerLoopRT::spinControl()
   {
-    controlStartingPosition();
+    setVelocityCommand();
     setControlOutput();
     return;
   }
@@ -75,31 +73,29 @@ namespace rosdrone_Controller
     else if(fraction > 0.35)
       fraction = 0.35;
 
-    setpoint.vel << 0.0, 0.0, 0.0;
-    setpoint.pos << 0.0, 0.0, 0.0;
-    setpoint.yaw_rate = 0.0;
+    tf::vectorEigenToMsg(Eigen::Vector3d(0,0,0), vel_command.linear);
+    tf::vectorEigenToMsg(Eigen::Vector3d(0,0,0), vel_command.angular);
     setControlOutput();
   }
 
-  void outerLoopRT::controlStartingPosition()
+  void outerLoopRT::setVelocityCommand()
   {
     if(ros::Time::now().toSec() - last_service_call > 10.0)
     {
       ROS_INFO_ONCE("Bearing control enabled!");
+      vel_command = sharedTwist;
     }
     else
     {
-      setpoint.vel.x() = 0;
-      setpoint.vel.y() = 0;
-      setpoint.vel.z() = 1.5 * (2.0 - pose.p[2]);
-      setpoint.yaw_rate = 0;
+      double u = (2.0 - pose.p[2]);
+      tf::vectorEigenToMsg(Eigen::Vector3d(0,0,u), vel_command.linear);
+      tf::vectorEigenToMsg(Eigen::Vector3d(0,0,0), vel_command.angular);
     }
   }
 
   void outerLoopRT::setControlOutput()
   {
-    vel_comm = rosdrone_Command::commandCreator::getCommand();
-    controlPub.publish(vel_comm);
+    controlPub.publish(vel_command);
   }
 
   void outerLoopRT::poseCallBack(const geometry_msgs::PoseStamped::ConstPtr& msg)
