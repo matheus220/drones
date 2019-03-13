@@ -5,7 +5,7 @@
 	<rosparam file="$(find drones)/launch/params.yaml" command="load"/>
 
 	<group ns="uav1">
-	    <node name="uav_detector" pkg="drones" type="target_detector" output="screen">
+	    <node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
 	        <remap from="/image" to="/iris_1/camera_uav/image_raw"/>
 	        <remap from="/camera_info" to="/iris_1/camera_uav/camera_info"/>
 	        <param name="uav_name" type="str" value="iris_1" />
@@ -13,7 +13,7 @@
 	</group>
 
 	<group ns="uav2">
-	    <node name="uav_detector" pkg="drones" type="target_detector" output="screen">
+	    <node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
 	        <remap from="/image" to="/iris_2/camera_uav/image_raw"/>
 	        <remap from="/camera_info" to="/iris_2/camera_uav/camera_info"/>
 	        <param name="uav_name" type="str" value="iris_2" />
@@ -21,15 +21,16 @@
 	</group>
 
 	<group ns="uav3">
-	    <node name="uav_detector" pkg="drones" type="target_detector" output="screen">
+	    <node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
 	        <remap from="/image" to="/iris_3/camera_uav/image_raw"/>
 	        <remap from="/camera_info" to="/iris_3/camera_uav/camera_info"/>
 	        <param name="uav_name" type="str" value="iris_3" />
 	    </node>
 	</group>
 
-	<node pkg="drones" type="addMarkers" name="addMarkers" output="screen" />
+	<node type="rviz" name="rviz" pkg="rviz" args="-d $(find drones)/launch/config.rviz" />
+	<node pkg="drones" type="animation_rviz_node" name="animation_rviz_node" output="screen" />
 
-	<node pkg="plotjuggler" type="PlotJuggler" name="plotjuggler" output="screen" />
+	<!--node pkg="plotjuggler" type="PlotJuggler" name="plotjuggler" output="screen" /-->
 
 </launch>
