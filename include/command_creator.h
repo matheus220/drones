@@ -47,16 +47,8 @@ namespace rosdrone
       void calculateVelocityCommand();
       void updateTwist();
       void publishError();
-      void plotDesiredBearings();
       double getYawFromQuaternion(const geometry_msgs::Quaternion& q);
       double DistanceController(double distance);
-      void addMarker(const int& frame_drone_ID,
-                     const int& vector_ID,
-                     const Eigen::Vector3d& vector,
-                     std::string ns,
-                     Eigen::Vector3i color,
-                     double length = -1,
-                     double thickness = 0.02);
 
       // callback functions
       void bearingMeasuresCallback(const drones::EstimatedDronePositionArray& msg);
@@ -106,15 +98,13 @@ namespace rosdrone
 
       // ROS Communication
       ros::NodeHandle nh, nhp;
-      ros::Publisher errorFPub, errorDist, desiredDist, markers_pub;
+      ros::Publisher errorFPub, errorDist, desiredDist;
       ros::Subscriber poseSub;
       std::vector<ros::Subscriber> bearingSub;
 
       // private variables
       int drone_ID;
       std::vector<std::pair<int, int> > desired_edges;
-
-      visualization_msgs::MarkerArray markers;
   };
 }
 #endif // COMMAND_CREATOR_H

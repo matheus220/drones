@@ -30,7 +30,7 @@ commandCreator::commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle&
   bearingSub.push_back(my_sub);
 
   poseSub = nh.subscribe("/gazebo/model_states", 2, &commandCreator::posesCallback, this);
-  markers_pub = nh.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 5);
+
   if(drone_ID == 2) errorFPub = nh.advertise<std_msgs::Float32>("errorF", 2);
   if(drone_ID == 1) errorDist = nh.advertise<std_msgs::Float32>("errorDist", 2);
   if(drone_ID == 1) desiredDist = nh.advertise<std_msgs::Float32>("desiredDist", 2);
@@ -186,68 +186,6 @@ void commandCreator::getROSParameters()
     ROS_ERROR("Some ROS parameters were not found! (uav_name and/or "
               "/uavs_info/num_uavs)");
   }
-}
-
-void commandCreator::plotDesiredBearings()
-{
-  for(auto measure : relativeBearingDesired[drone_ID])
-  {
-    if (relativeBearing[drone_ID].find(measure.first) != relativeBearing[drone_ID].end())
-    {
-      Eigen::Vector3i color((measure.first == 1), (measure.first == 2), (measure.first == 3));
-      addMarker(drone_ID, measure.first, measure.second, "desired", color, 1.5, 0.05);
-    }
-  }
-  markers_pub.publish(markers);
-  markers.markers.clear();
-}
-
-void commandCreator::addMarker(const int& frame_drone_ID, const int& vector_ID, const Eigen::Vector3d& vector, std::string ns, Eigen::Vector3i color, double length, double thickness)
-{
-  float dist_arrow_to_drone = 0.25;
-  float weight_distance = 0.45;
-
-  visualization_msgs::Marker marker;
-
-  marker.header.frame_id = "local_origin";
-  marker.header.stamp = ros::Time();
-  marker.ns = ns + "_" + std::to_string(frame_drone_ID);
-  marker.id = vector_ID;
-  marker.type = visualization_msgs::Marker::ARROW;
-  marker.action = visualization_msgs::Marker::ADD;
-
-  Eigen::Vector3d bearingWorldFrame;
-
-  bearingWorldFrame = posesGazebo[frame_drone_ID].R * vector;
-
-  tf::pointEigenToMsg(bearingWorldFrame * dist_arrow_to_drone + posesGazebo[frame_drone_ID].p, marker.pose.position);
-
-  Eigen::Matrix3d bearingRotation;
-  Eigen::Vector3d auxVec, col0, col1;
-
-  auxVec = Eigen::Vector3d(0, 0, 1);
-  col0 = auxVec.cross(bearingWorldFrame);
-  col1 = bearingWorldFrame.cross(col0);
-
-  bearingRotation.col(0) = bearingWorldFrame.normalized();
-  bearingRotation.col(1) = col0.normalized();
-  bearingRotation.col(2) = col1.normalized();
-
-  Eigen::Quaterniond orientation(bearingRotation);
-
-  tf::quaternionEigenToMsg(orientation.normalized(), marker.pose.orientation);
-
-  if(length == -1) length = vector.norm();
-  tf::vectorEigenToMsg(Eigen::Vector3d(weight_distance*(length-2*dist_arrow_to_drone), thickness, thickness), marker.scale);
-
-  marker.color.a = 1.0; // Don't forget to set the alpha!
-  marker.color.r = color.x();
-  marker.color.g = color.y();
-  marker.color.b = color.z();
-
-  marker.lifetime = ros::Duration(0.5);
-
-  markers.markers.push_back(marker);
 }
 
 double commandCreator::getYawFromQuaternion(const geometry_msgs::Quaternion& q)

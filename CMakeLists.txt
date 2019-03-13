@@ -48,12 +48,9 @@ include_directories(
   ${eigen3_include_dirs}
 )
 
-add_executable(broadcastTransformsBase src/broadcastTransformsBase.cpp)
-target_link_libraries(broadcastTransformsBase ${catkin_LIBRARIES})
-
-add_executable(addMarkers src/addMarkers.cpp)
-target_link_libraries(addMarkers ${catkin_LIBRARIES})
-add_dependencies(addMarkers ${addMarkers_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(animation_rviz_node src/animation_rviz_node.cpp src/animation_rviz.cpp)
+target_link_libraries(animation_rviz_node ${catkin_LIBRARIES})
+add_dependencies(animation_rviz_node ${animation_rviz_node_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(drone_operator src/drone_operator_node.cpp src/target_detector.cpp src/outerloop_controller.cpp src/command_creator.cpp)
 target_link_libraries(drone_operator ${OpenCV_LIBS} ${catkin_LIBRARIES})
