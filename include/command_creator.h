@@ -58,8 +58,7 @@ namespace rosdrone
       struct ControlParams
       {
         double kc=0.7;
-        double kp_dist=0.2;
-        double kd_dist=0.1;
+        double kp_dist=0.1;
       } controlParams;
 
       struct VelocityCommand
@@ -86,7 +85,6 @@ namespace rosdrone
       struct DistController
       {
         double last_time_measure = 0.0;
-        double last_measure = 0.0;
         double distDesired = 2.0;
       } distController;
 

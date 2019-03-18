@@ -117,7 +117,6 @@ void commandCreator::calculateVelocityCommand()
   auto my_measures = relativeBearing[drone_ID];
 
   int i = drone_ID;
-  Eigen::Vector3d u2 = Eigen::Vector3d::Zero();
   Eigen::Vector3d u = Eigen::Vector3d::Zero();
   double w = 0;
 
@@ -129,7 +128,8 @@ void commandCreator::calculateVelocityCommand()
       Eigen::Vector3d bearing_ij = measure.second.bearing;
       u -= controlParams.kc * (I - bearing_ij*bearing_ij.transpose()) * relativeBearingDesired[i][j];
       w += controlParams.kc * bearing_ij.transpose() * S * relativeBearingDesired[i][j];
-      if(i == 1 && j == 2) u -= DistanceController(measure.second.distance) * bearing_ij;
+      if(i == 1 && j == 2) u += DistanceController(measure.second.distance) * bearing_ij;
+      if(i == 2 && j == 1) u += DistanceController(measure.second.distance) * bearing_ij;
     }
   }
 
@@ -143,7 +143,6 @@ void commandCreator::calculateVelocityCommand()
         Eigen::Vector3d bearing_ji = drone_measures.second[i].bearing;
         Rij = Eigen::AngleAxisd(posesGazebo[j].psi - posesGazebo[i].psi, Eigen::Vector3d::UnitZ());
         u += controlParams.kc * Rij * (I - bearing_ji*bearing_ji.transpose()) * relativeBearingDesired[j][i];
-        if(i == 2 && j == 1) u += DistanceController(drone_measures.second[i].distance) * Rij * bearing_ji;
       }
     }
   }
@@ -157,7 +156,6 @@ double commandCreator::DistanceController(double distance)
   if (distController.last_time_measure == 0)
   {
     distController.last_time_measure = ros::Time::now().toSec();
-    distController.last_measure = distance;
     return 0;
   }
 
@@ -166,11 +164,8 @@ double commandCreator::DistanceController(double distance)
   distController.last_time_measure = time;
 
   double e = distController.distDesired - distance;
-  double e_dot = (distance - distController.last_measure) / dT;
 
-  distController.last_measure = distance;
-
-  return controlParams.kp_dist * e - controlParams.kd_dist * e_dot;
+  return - controlParams.kp_dist * e;
 }
 
 void commandCreator::getROSParameters()
