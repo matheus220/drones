@@ -48,7 +48,8 @@ namespace rosdrone
       void updateTwist();
       void publishError();
       double getYawFromQuaternion(const geometry_msgs::Quaternion& q);
-      double DistanceController(double distance);
+      double distanceController(double distance);
+      void nullSpaceMotions(Eigen::Vector3d& u, double& w);
 
       // callback functions
       void bearingMeasuresCallback(const drones::EstimatedDronePositionArray& msg);

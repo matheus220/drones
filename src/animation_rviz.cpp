@@ -131,6 +131,43 @@ void animationRviz::addVelocityArrows()
   }
 }
 
+void animationRviz::addCentroid()
+{
+  Eigen::Vector3d translation, centroid;
+  for (auto drone : posesGazebo)
+  {
+    centroid += drone.second.p;
+  }
+  centroid /= posesGazebo.size();
+
+  visualization_msgs::Marker marker;
+
+  marker.header.frame_id = "local_origin";
+  marker.header.stamp = ros::Time();
+  marker.ns = "centroid";
+  marker.id = 0;
+  marker.type = visualization_msgs::Marker::SPHERE;
+  marker.action = visualization_msgs::Marker::ADD;
+
+  tf::pointEigenToMsg(centroid, marker.pose.position);
+  tf::quaternionEigenToMsg(Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0), marker.pose.orientation);
+  tf::vectorEigenToMsg(Eigen::Vector3d(0.12,0.12,0.12), marker.scale);
+
+  marker.color.a = 1.0; // Don't forget to set the alpha!
+  marker.color.r = 0.82;
+  marker.color.g = 0.38;
+  marker.color.b = 0.21;
+
+  marker.lifetime = ros::Duration(0.5);
+
+  markers.markers.push_back(marker);
+
+  translation << 0,0,0;
+
+  Eigen::Vector3i color(0, 1, 1);
+  addMarker(1, 1, translation, "tranlation", color, -1, 0.02);
+}
+
 void animationRviz::publishMarkers()
 {
   if(markers_pub.getNumSubscribers() > 0)

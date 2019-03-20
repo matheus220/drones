@@ -28,6 +28,7 @@ namespace rosdrone_Animation
       void addMeasuresArrows();
       void addDesiredArrows();
       void addVelocityArrows();
+      void addCentroid();
       void publishMarkers();
 
     private:

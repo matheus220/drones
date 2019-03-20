@@ -17,6 +17,7 @@ int main(int argc, char** argv)
     animation.addMeasuresArrows();
     animation.addDesiredArrows();
     animation.addVelocityArrows();
+    animation.addCentroid();
 
     animation.publishMarkers();
 

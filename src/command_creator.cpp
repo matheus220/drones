@@ -128,8 +128,8 @@ void commandCreator::calculateVelocityCommand()
       Eigen::Vector3d bearing_ij = measure.second.bearing;
       u -= controlParams.kc * (I - bearing_ij*bearing_ij.transpose()) * relativeBearingDesired[i][j];
       w += controlParams.kc * bearing_ij.transpose() * S * relativeBearingDesired[i][j];
-      if(i == 1 && j == 2) u += DistanceController(measure.second.distance) * bearing_ij;
-      if(i == 2 && j == 1) u += DistanceController(measure.second.distance) * bearing_ij;
+      if(i == 1 && j == 2) u += distanceController(measure.second.distance) * bearing_ij;
+      if(i == 2 && j == 1) u += distanceController(measure.second.distance) * bearing_ij;
     }
   }
 
@@ -147,11 +147,37 @@ void commandCreator::calculateVelocityCommand()
     }
   }
 
+  nullSpaceMotions(u, w);
+
   velocityCommand = {u, w};
   updateTwist();
 }
 
-double commandCreator::DistanceController(double distance)
+void commandCreator::nullSpaceMotions(Eigen::Vector3d& u, double& w)
+{
+  if(ros::Time::now().toSec() > 30)
+  {
+    ROS_INFO_ONCE("Null-space motions initialized");
+    double rotation, scale;
+    Eigen::Vector3d translation, centroid;
+    for (auto drone : posesGazebo)
+    {
+      centroid += drone.second.p;
+    }
+    centroid /= posesGazebo.size();
+
+    translation << 0,0,0;
+    rotation = 0.05;
+    scale = 0;
+
+    auto poseInfo = posesGazebo[drone_ID];
+
+    u += poseInfo.R.transpose() * (translation + scale*(poseInfo.p - centroid) + rotation*S*(poseInfo.p - centroid));
+    w += rotation;
+  }
+}
+
+double commandCreator::distanceController(double distance)
 {
   if (distController.last_time_measure == 0)
   {
