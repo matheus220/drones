@@ -59,7 +59,7 @@ namespace rosdrone
       struct ControlParams
       {
         double kc=0.7;
-        double kp_dist=0.1;
+        double kp_dist=0.15;
       } controlParams;
 
       struct VelocityCommand
@@ -94,6 +94,7 @@ namespace rosdrone
       std::map<int, PoseStructure> posesGazebo;
       Eigen::Matrix3d S;
       Eigen::Matrix3d I;
+      double start_time;
 
       // ROS Communication
       ros::NodeHandle nh, nhp;
