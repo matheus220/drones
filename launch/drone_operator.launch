@@ -40,8 +40,6 @@
 		<arg name="mocap_rate" default="200"/>
     </include>
 
-    <node pkg="drones" type="formation_detector.py" name="formation_detector" output="screen" />
-
 	<include file="$(find drones)/launch/animation.launch"/>
 
 	<node pkg="drones" type="formation_detector.py" name="formation_detector" output="screen" />
