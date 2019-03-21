@@ -9,7 +9,6 @@ int main(int argc, char** argv)
   ros::NodeHandle nhg, nhp("~");
   ROS_INFO("Main Hover Node Launched");
 
-  rosdrone_Detector::targetDetector detector(nhg, nhp);
   rosdrone::outerLoopRT controller(nhg);
   rosdrone::commandCreator command(nhg, nhp);
 
@@ -29,7 +28,6 @@ int main(int argc, char** argv)
     ROS_INFO_THROTTLE(5,"Hover Node Running");
     ros::spinOnce();
 
-    detector.spinDetector();
     command.spinCommand();
     controller.spinControl();
 

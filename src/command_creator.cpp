@@ -13,23 +13,10 @@ commandCreator::commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle&
   desired_edges = { {1, 2}, {1,3}, {2,1}, {3,2} };
   S <<  0, -1, 0, 1, 0, 0, 0, 0, 0;
   I = Eigen::Matrix3d::Identity();
-  start_time = ros::Time::now().toSec();
   setRelativeBearingDesired();
 
   // initialize communications
-  for(auto edge : desired_edges)
-  {
-    if(edge.second == drone_ID)
-    {
-      std::string subsName = "/uav" + std::to_string(edge.first) + "/relative_bearing";
-      ros::Subscriber aux = nh.subscribe(subsName, 10, &commandCreator::bearingMeasuresCallback, this);
-      bearingSub.push_back(aux);
-    }
-  }
-  std::string subsName = "/uav" + std::to_string(drone_ID) + "/relative_bearing";
-  ros::Subscriber my_sub = nh.subscribe(subsName, 10, &commandCreator::bearingMeasuresCallback, this);
-  bearingSub.push_back(my_sub);
-
+  bearings_sub = nh.subscribe("/bearings", 2, &commandCreator::bearingMeasuresCallback, this);
   poseSub = nh.subscribe("/gazebo/model_states", 2, &commandCreator::posesCallback, this);
 
   if(drone_ID == 2) errorFPub = nh.advertise<std_msgs::Float32>("errorF", 2);
@@ -156,7 +143,7 @@ void commandCreator::calculateVelocityCommand()
 
 void commandCreator::nullSpaceMotions(Eigen::Vector3d& u, double& w)
 {
-  if(ros::Time::now().toSec() - start_time > 50)
+  if(ros::Time::now().toSec() > 30)
   {
     ROS_INFO_ONCE("Null-space motions initialized");
     double rotation, scale;
@@ -168,7 +155,7 @@ void commandCreator::nullSpaceMotions(Eigen::Vector3d& u, double& w)
     centroid /= posesGazebo.size();
 
     translation << 0,0,0;
-    rotation = 0.03;
+    rotation = 0.05;
     scale = 0;
 
     auto poseInfo = posesGazebo[drone_ID];
@@ -217,20 +204,23 @@ double commandCreator::getYawFromQuaternion(const geometry_msgs::Quaternion& q)
   return atan2(siny_cosp, cosy_cosp);
 }
 
-void commandCreator::bearingMeasuresCallback(const drones::EstimatedDronePositionArray& msg)
+void commandCreator::bearingMeasuresCallback(const formation_control_lib::Formation& measures)
 {
-  for (auto measure : msg.estPosVector)
+  for (int i=0; i<measures.links.size(); i++)
   {
-    int drone_id;
-    int measured_id;
-    drone_id = measure.estimator[measure.estimator.length()-1] - 48;
-    measured_id = measure.estimated[measure.estimated.length()-1] - 48;
+    string drone_name = measures.links[i].drone_name;
+    int drone_id = drone_name[drone_name.length()-1] - 48 - 3;
+    for (int j=0; j<measures.links[i].targets.size(); j++)
+    {
+      string target_name = measures.links[i].targets[j];
+      int target_id = target_name[target_name.length()-1] - 48 - 3;
 
-    Eigen::Vector3d bearing;
-    tf::vectorMsgToEigen(measure.bearingVector, bearing);
+      Eigen::Vector3d bearing;
+      tf::vectorMsgToEigen(measures.links[i].bearings[j], bearing);
 
-    relativeBearing[drone_id][measured_id].bearing = bearing;
-    relativeBearing[drone_id][measured_id].distance = measure.distance;
+      relativeBearing[drone_id][target_id].bearing = bearing;
+      relativeBearing[drone_id][target_id].distance = measures.links[i].distances[j].data;
+    }
   }
 }
 

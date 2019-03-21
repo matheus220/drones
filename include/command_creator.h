@@ -11,6 +11,8 @@
 
 #include <drones/EstimatedDronePosition.h>
 #include <drones/EstimatedDronePositionArray.h>
+#include <formation_control_lib/Formation.h>
+#include <formation_control_lib/FormationLink.h>
 #include <std_msgs/Float32.h>
 
 #include <geometry_msgs/Pose.h>
@@ -52,7 +54,7 @@ namespace rosdrone
       void nullSpaceMotions(Eigen::Vector3d& u, double& w);
 
       // callback functions
-      void bearingMeasuresCallback(const drones::EstimatedDronePositionArray& msg);
+      void bearingMeasuresCallback(const formation_control_lib::Formation& measures);
       void posesCallback(const gazebo_msgs::ModelStates& poses);
 
       // private structures
@@ -94,13 +96,11 @@ namespace rosdrone
       std::map<int, PoseStructure> posesGazebo;
       Eigen::Matrix3d S;
       Eigen::Matrix3d I;
-      double start_time;
 
       // ROS Communication
       ros::NodeHandle nh, nhp;
       ros::Publisher errorFPub, errorDist, desiredDist;
-      ros::Subscriber poseSub;
-      std::vector<ros::Subscriber> bearingSub;
+      ros::Subscriber poseSub, bearings_sub;
 
       // private variables
       int drone_ID;

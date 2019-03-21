@@ -30,6 +30,8 @@
 
 	<include file="$(find drones)/launch/animation.launch"/>
 
+	<node pkg="drones" type="formation_detector.py" name="formation_detector" output="screen" />
+
 	<!--node pkg="plotjuggler" type="PlotJuggler" name="plotjuggler" output="screen" /-->
 
 </launch>

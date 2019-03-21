@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   mav_msgs
   nav_msgs
   eigen_conversions
+  formation_control_lib
 )
 
 find_package(Eigen3 REQUIRED)
