@@ -8,8 +8,6 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   tf
   std_msgs
-  image_transport
-  cv_bridge
   message_generation
   mav_msgs
   nav_msgs
@@ -35,7 +33,7 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp message_runtime sensor_msgs std_msgs cv_bridge image_transport tf eigen_conversions
+  CATKIN_DEPENDS roscpp message_runtime sensor_msgs std_msgs tf eigen_conversions
 )
 
 ###########
@@ -53,6 +51,6 @@ add_executable(animation_rviz_node src/animation_rviz_node.cpp src/animation_rvi
 target_link_libraries(animation_rviz_node ${catkin_LIBRARIES})
 add_dependencies(animation_rviz_node ${animation_rviz_node_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(drone_operator src/drone_operator_node.cpp src/target_detector.cpp src/outerloop_controller.cpp src/command_creator.cpp)
+add_executable(drone_operator src/drone_operator_node.cpp src/outerloop_controller.cpp src/command_creator.cpp)
 target_link_libraries(drone_operator ${OpenCV_LIBS} ${catkin_LIBRARIES})
 add_dependencies(drone_operator ${drone_operator_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

@@ -1,4 +1,3 @@
-#include "target_detector.h"
 #include "outerloop_controller.h"
 #include "command_creator.h"
 #include <ros/ros.h>
