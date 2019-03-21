@@ -94,6 +94,7 @@ namespace rosdrone
       std::map<int, PoseStructure> posesGazebo;
       Eigen::Matrix3d S;
       Eigen::Matrix3d I;
+      double start_time;
 
       // ROS Communication
       ros::NodeHandle nh, nhp;

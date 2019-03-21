@@ -13,6 +13,7 @@ commandCreator::commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle&
   desired_edges = { {1, 2}, {1,3}, {2,1}, {3,2} };
   S <<  0, -1, 0, 1, 0, 0, 0, 0, 0;
   I = Eigen::Matrix3d::Identity();
+  start_time = ros::Time::now().toSec();
   setRelativeBearingDesired();
 
   // initialize communications
@@ -155,7 +156,7 @@ void commandCreator::calculateVelocityCommand()
 
 void commandCreator::nullSpaceMotions(Eigen::Vector3d& u, double& w)
 {
-  if(ros::Time::now().toSec() > 30)
+  if(ros::Time::now().toSec() - start_time > 50)
   {
     ROS_INFO_ONCE("Null-space motions initialized");
     double rotation, scale;
@@ -167,7 +168,7 @@ void commandCreator::nullSpaceMotions(Eigen::Vector3d& u, double& w)
     centroid /= posesGazebo.size();
 
     translation << 0,0,0;
-    rotation = 0.05;
+    rotation = 0.03;
     scale = 0;
 
     auto poseInfo = posesGazebo[drone_ID];
