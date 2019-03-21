@@ -9,17 +9,14 @@ animationRviz::animationRviz(const ros::NodeHandle& n) : nh(n)
 
   for(int i = 1; i <=3 ; i++)
   {
-    mesuresSub.push_back(
-          nh.subscribe(
-            "/uav" + std::to_string(i) + "/relative_bearing", 10,
-            &animationRviz::measuresCallback, this)
-          );
     twistSub.push_back(
           nh.subscribe<geometry_msgs::Twist>(
             "/uav" + std::to_string(i) + "/mavros/setpoint_velocity/cmd_vel_unstamped", 2,
             boost::bind(&animationRviz::twistCommandCallBack, this, _1, i))
           );
   }
+  mesures_sub = nh.subscribe("/bearings", 2, &animationRviz::measuresCallback, this);
+
   poses_sub = nh.subscribe("/gazebo/model_states", 10, &animationRviz::broadcastingTransformsCallback, this);
 
   setRelativeBearingDesired();
@@ -103,10 +100,10 @@ void animationRviz::addMeasuresArrows()
 {
   for (int i = 0; i < vectorMeasures.size(); i++)
   {
-    int id_estimator = vectorMeasures[i].estimator.at(vectorMeasures[i].estimator.length() - 1) - 48;
-    int id_estimated = vectorMeasures[i].estimated.at(vectorMeasures[i].estimated.length() - 1) - 48;
+    int id_drone = vectorMeasures[i].drone_name.at(vectorMeasures[i].drone_name.length() - 1) - 48 - 3;
+    int id_target = vectorMeasures[i].target_name.at(vectorMeasures[i].target_name.length() - 1) - 48 - 3;
     Eigen::Vector3i color(1, 0, 1);
-    addMarker(id_estimator, id_estimated, vectorMeasures[i].bearing, "measure", color, vectorMeasures[i].distance, 0.03);
+    addMarker(id_drone, id_target, vectorMeasures[i].bearing, "measure", color, vectorMeasures[i].distance, 0.03);
   }
 }
 
@@ -211,28 +208,23 @@ void animationRviz::broadcastingTransformsCallback(const gazebo_msgs::ModelState
   }
 }
 
-void animationRviz::measuresCallback(const drones::EstimatedDronePositionArray& msg)
+void animationRviz::measuresCallback(const formation_control_lib::Formation& measures)
 {
-  for (int i = 0; i < msg.estPosVector.size(); i++)
+  MsgEstimatedDronePosition measure;
+  for (int i=0; i<measures.links.size(); i++)
   {
-    MsgEstimatedDronePosition estPosition;
-    estPosition.estimator = msg.estPosVector[i].estimator;
-    estPosition.estimated = msg.estPosVector[i].estimated;
-    estPosition.distance = msg.estPosVector[i].distance;
-    estPosition.estimatorPos[0] = msg.estPosVector[i].poseEstimator.position.x;
-    estPosition.estimatorPos[1] = msg.estPosVector[i].poseEstimator.position.y;
-    estPosition.estimatorPos[2] = msg.estPosVector[i].poseEstimator.position.z;
-    estPosition.bearing[0] = msg.estPosVector[i].bearingVector.x;
-    estPosition.bearing[1] = msg.estPosVector[i].bearingVector.y;
-    estPosition.bearing[2] = msg.estPosVector[i].bearingVector.z;
+    measure.drone_name = measures.links[i].drone_name;
+    for (int j=0; j<measures.links[i].targets.size(); j++)
+    {
+      measure.target_name = measures.links[i].targets[j];
 
-    Eigen::Quaterniond q(msg.estPosVector[i].poseEstimator.orientation.w,
-                         msg.estPosVector[i].poseEstimator.orientation.x,
-                         msg.estPosVector[i].poseEstimator.orientation.y,
-                         msg.estPosVector[i].poseEstimator.orientation.z);
-    estPosition.estimatorRot = q.normalized().toRotationMatrix();
+      Eigen::Vector3d bearing;
+      tf::vectorMsgToEigen(measures.links[i].bearings[j], measure.bearing);
 
-    vectorMeasures.push_back(estPosition);
+      measure.distance = measures.links[i].distances[j].data;
+
+      vectorMeasures.push_back(measure);
+    }
   }
 }
 

@@ -4,8 +4,8 @@
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <visualization_msgs/Marker.h>
-#include <drones/EstimatedDronePosition.h>
-#include <drones/EstimatedDronePositionArray.h>
+#include <formation_control_lib/Formation.h>
+#include <formation_control_lib/FormationLink.h>
 #include <tf/transform_broadcaster.h>
 #include <gazebo_msgs/ModelStates.h>
 #include <geometry_msgs/Pose.h>
@@ -40,18 +40,16 @@ namespace rosdrone_Animation
 
       // callback functions
       void broadcastingTransformsCallback(const gazebo_msgs::ModelStates& msg);
-      void measuresCallback(const drones::EstimatedDronePositionArray& msg);
+      void measuresCallback(const formation_control_lib::Formation& msg);
       void twistCommandCallBack(const ros::MessageEvent<geometry_msgs::Twist const>& event, const int drone_ID);
 
       // private structures
       struct MsgEstimatedDronePosition
       {
-        std::string estimator;
-        std::string estimated;
-        double distance;
-        Eigen::Matrix3d estimatorRot;
-        Eigen::Vector3d estimatorPos;
+        std::string drone_name;
+        std::string target_name;
         Eigen::Vector3d bearing;
+        double distance;
       };
 
       struct PoseStructure
@@ -72,7 +70,8 @@ namespace rosdrone_Animation
       ros::NodeHandle nh;
       ros::Publisher markers_pub;
       ros::Subscriber poses_sub;
-      std::vector<ros::Subscriber> mesuresSub, twistSub;
+      std::vector<ros::Subscriber> twistSub;
+      ros::Subscriber mesures_sub;
 
       // private variables
       std::vector<MsgEstimatedDronePosition> vectorMeasures;
