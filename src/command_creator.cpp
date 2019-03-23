@@ -18,7 +18,7 @@ commandCreator::commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle&
 
   // initialize communications
   bearings_sub = nh.subscribe("/bearings", 2, &commandCreator::bearingMeasuresCallback, this);
-  poseSub = nh.subscribe("/gazebo/model_states", 2, &commandCreator::posesCallback, this);
+  poseSub = nh.subscribe("/gazebo/model_states_fake", 2, &commandCreator::posesCallback, this);
 
   if(drone_ID == 2) errorFPub = nh.advertise<std_msgs::Float32>("errorF", 2);
   if(drone_ID == 1) errorDist = nh.advertise<std_msgs::Float32>("errorDist", 2);

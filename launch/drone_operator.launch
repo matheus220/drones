@@ -40,6 +40,15 @@
 		<arg name="mocap_rate" default="200"/>
     </include>
 
+	<!--node pkg="qualisys"
+		type="qualisys_node"
+		name="qualisys"
+		output="screen">
+		<param name="server_address" value="192.168.0.10"/>
+		<param name="base_port" value="22222"/>
+		<param name="publish_tf" value="false"/>
+	</node-->
+
 	<include file="$(find drones)/launch/animation.launch"/>
 
 	<node pkg="drones" type="formation_detector.py" name="formation_detector" output="screen" />

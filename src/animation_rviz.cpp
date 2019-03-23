@@ -17,7 +17,7 @@ animationRviz::animationRviz(const ros::NodeHandle& n) : nh(n)
   }
   mesures_sub = nh.subscribe("/bearings", 2, &animationRviz::measuresCallback, this);
 
-  poses_sub = nh.subscribe("/gazebo/model_states", 10, &animationRviz::broadcastingTransformsCallback, this);
+  poses_sub = nh.subscribe("/gazebo/model_states_fake", 10, &animationRviz::broadcastingTransformsCallback, this);
 
   setRelativeBearingDesired();
 }

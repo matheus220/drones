@@ -7,6 +7,7 @@ from formation_control_lib.msg import Formation
 from formation_control_lib.msg import FormationLink
 from geometry_msgs.msg import Vector3
 from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
 from gazebo_msgs.msg import ModelStates
@@ -28,8 +29,8 @@ class theFormation:
 
         rospy.init_node('formation_generator', anonymous=True)
         self._pub = rospy.Publisher('bearings',Formation,queue_size=1)
-        #self._pub_gazebo = rospy.Publisher('gazebo/model_states',ModelStates,queue_size=1)
-
+        self._pub_gazebo = rospy.Publisher('gazebo/model_states_fake',ModelStates,queue_size=1)
+        self._pub_real_drone_pose = rospy.Publisher('/uav3/mavros/mocap/pose',PoseStamped,queue_size=1)
         self._sub = rospy.Subscriber("/qualisys/drone4", Subject, self.callback_d4)
         self._sub = rospy.Subscriber("/qualisys/drone5", Subject, self.callback_d5)
         self._sub = rospy.Subscriber("/qualisys/drone6", Subject, self.callback_d6)
@@ -50,6 +51,7 @@ class theFormation:
         while not rospy.is_shutdown():
             if(self.drone4_found and self.drone5_found and self.drone6_found):
                 self.publish_bearings()
+                self.publish_poses()
 
             rate.sleep()
 
@@ -122,13 +124,16 @@ class theFormation:
         tmp_msg.orientation = data.orientation
         self._poses[1] = tmp_msg
 
-
     def callback_d6(self,data):
         self.drone6_found = True
         tmp_msg = Pose()
         tmp_msg.position = data.position
         tmp_msg.orientation = data.orientation
         self._poses[2] = tmp_msg
+        mocap_pose = PoseStamped()
+        mocap_pose.pose.position = tmp_msg.position
+        mocap_pose.pose.orientation = tmp_msg.orientation
+        self._pub_real_drone_pose.publish(mocap_pose)
 
 ## main function
 if __name__ == '__main__':
