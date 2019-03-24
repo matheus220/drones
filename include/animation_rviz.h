@@ -4,8 +4,8 @@
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <visualization_msgs/Marker.h>
-#include <formation_control_lib/Formation.h>
-#include <formation_control_lib/FormationLink.h>
+#include <drones/Formation.h>
+#include <drones/FormationLink.h>
 #include <tf/transform_broadcaster.h>
 #include <gazebo_msgs/ModelStates.h>
 #include <geometry_msgs/Pose.h>
@@ -40,7 +40,7 @@ namespace rosdrone_Animation
 
       // callback functions
       void broadcastingTransformsCallback(const gazebo_msgs::ModelStates& msg);
-      void measuresCallback(const formation_control_lib::Formation& msg);
+      void measuresCallback(const drones::Formation& msg);
       void twistCommandCallBack(const ros::MessageEvent<geometry_msgs::Twist const>& event, const int drone_ID);
 
       // private structures

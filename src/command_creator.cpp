@@ -18,7 +18,7 @@ commandCreator::commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle&
 
   // initialize communications
   bearings_sub = nh.subscribe("/bearings", 2, &commandCreator::bearingMeasuresCallback, this);
-  poseSub = nh.subscribe("/gazebo/model_states_fake", 2, &commandCreator::posesCallback, this);
+  poseSub = nh.subscribe("/gazebo/model_states", 2, &commandCreator::posesCallback, this);
 
   if(drone_ID == 2) errorFPub = nh.advertise<std_msgs::Float32>("errorF", 2);
   if(drone_ID == 1) errorDist = nh.advertise<std_msgs::Float32>("errorDist", 2);
@@ -144,7 +144,7 @@ void commandCreator::calculateVelocityCommand()
 
 void commandCreator::nullSpaceMotions(Eigen::Vector3d& u, double& w)
 {
-  if(ros::Time::now().toSec() - start_time > 50)
+  if(ros::Time::now().toSec() - start_time > 60)
   {
     ROS_INFO_ONCE("Null-space motions initialized");
     double rotation, scale;
@@ -155,9 +155,13 @@ void commandCreator::nullSpaceMotions(Eigen::Vector3d& u, double& w)
     }
     centroid /= posesGazebo.size();
 
-    translation << 0,0,0;
-    rotation = 0.05;
-    scale = 0;
+    double t = ros::Time::now().toSec() - 60;
+
+    translation << 0.1*std::sin(t/20), 0.05*std::cos(t/20), 0;
+
+    translation << 0, 0, 0;
+    rotation = 0.0;
+    scale = 0.0;
 
     auto poseInfo = posesGazebo[drone_ID];
 
@@ -185,16 +189,9 @@ double commandCreator::distanceController(double distance)
 
 void commandCreator::getROSParameters()
 {
-  std::string my_name;
-  int num_uavs;
-  if (nhp.getParam("uav_name", my_name) && nh.getParam("/uavs_info/num_uavs", num_uavs))
+  if (!nhp.getParam("uav_id", drone_ID))
   {
-    drone_ID = my_name[my_name.length() - 1] - 48;
-  }
-  else
-  {
-    ROS_ERROR("Some ROS parameters were not found! (uav_name and/or "
-              "/uavs_info/num_uavs)");
+      ROS_ERROR("ROS parameter uav_id was not found!");
   }
 }
 
@@ -205,16 +202,18 @@ double commandCreator::getYawFromQuaternion(const geometry_msgs::Quaternion& q)
   return atan2(siny_cosp, cosy_cosp);
 }
 
-void commandCreator::bearingMeasuresCallback(const formation_control_lib::Formation& measures)
+void commandCreator::bearingMeasuresCallback(const drones::Formation& measures)
 {
   for (int i=0; i<measures.links.size(); i++)
   {
     string drone_name = measures.links[i].drone_name;
-    int drone_id = drone_name[drone_name.length()-1] - 48 - 3;
+    // int drone_id = drone_name[drone_name.length()-1] - 48 - 3;
+    int drone_id = drone_name[drone_name.length()-1] - 48-3;
     for (int j=0; j<measures.links[i].targets.size(); j++)
     {
       string target_name = measures.links[i].targets[j];
-      int target_id = target_name[target_name.length()-1] - 48 - 3;
+      // int target_id = target_name[target_name.length()-1] - 48 - 3;
+      int target_id = target_name[target_name.length()-1] - 48-3;
 
       Eigen::Vector3d bearing;
       tf::vectorMsgToEigen(measures.links[i].bearings[j], bearing);

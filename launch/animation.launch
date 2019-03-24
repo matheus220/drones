@@ -4,60 +4,31 @@
 
 	<group ns="animation">
 
-		<group ns="uav1">
-			<arg name="mavlink_udp_port" default="14561"/>
-			<arg name="ID" default="1"/>
-			<arg name="cmd" default="$(find xacro)/xacro $(find drones)/rotors_description/urdf/iris_base_V2.xacro rotors_description_dir:=$(find drones)/rotors_description mavlink_udp_port:=$(arg mavlink_udp_port) target_$(arg ID):=true ID:=$(arg ID) --inorder"/>
-	    	<param command="$(arg cmd)" name="rotors_description"/>
+		<arg name="target" value="_ball"/>
 
-	    	<node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
-		      <remap from="robot_description" to="rotors_description" />
-		      <param name="tf_prefix" value="uav$(arg ID)"/>
-		    </node>
+		<include file="$(find drones)/launch/animation_state_publisher.launch">
+            <arg name="ID" value="1"/>
+            <arg name="mavlink_udp_port" value="14561"/>
+            <arg name="target" value="$(arg target)"/>
+        </include>
 
-		    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_st_pub" >
-		      <remap from="robot_description" to="rotors_description" />
-		      <param name="tf_prefix" value="uav$(arg ID)"/>
-		    </node>
-		</group>
+        <include file="$(find drones)/launch/animation_state_publisher.launch">
+            <arg name="ID" value="2"/>
+            <arg name="mavlink_udp_port" value="14562"/>
+            <arg name="target" value="$(arg target)"/>
+        </include>
 
-		<group ns="uav2">
-			<arg name="mavlink_udp_port" default="14562"/>
-			<arg name="ID" default="2"/>
-			<arg name="cmd" default="$(find xacro)/xacro $(find drones)/rotors_description/urdf/iris_base_V2.xacro rotors_description_dir:=$(find drones)/rotors_description mavlink_udp_port:=$(arg mavlink_udp_port) target_$(arg ID):=true ID:=$(arg ID) --inorder"/>
-	    	<param command="$(arg cmd)" name="rotors_description"/>
+        <include file="$(find drones)/launch/animation_state_publisher.launch">
+            <arg name="ID" value="3"/>
+            <arg name="mavlink_udp_port" value="14563"/>
+            <arg name="target" value="$(arg target)"/>
+        </include>
 
-	    	<node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
-		      <remap from="robot_description" to="rotors_description" />
-		      <param name="tf_prefix" value="uav$(arg ID)"/>
-		    </node>
+		<node type="rviz" name="rviz" pkg="rviz" args="-d $(find drones)/config/config.rviz" />
 
-		    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_st_pub" >
-		      <remap from="robot_description" to="rotors_description" />
-		      <param name="tf_prefix" value="uav$(arg ID)"/>
-		    </node>
-		</group>
-
-		<group ns="uav3">
-			<arg name="mavlink_udp_port" default="14563"/>
-			<arg name="ID" default="3"/>
-			<arg name="cmd" default="$(find xacro)/xacro $(find drones)/rotors_description/urdf/iris_base_V2.xacro rotors_description_dir:=$(find drones)/rotors_description mavlink_udp_port:=$(arg mavlink_udp_port) target_$(arg ID):=true ID:=$(arg ID) --inorder"/>
-	    	<param command="$(arg cmd)" name="rotors_description"/>
-
-	    	<node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
-		      <remap from="robot_description" to="rotors_description" />
-		      <param name="tf_prefix" value="uav$(arg ID)"/>
-		    </node>
-
-		    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_st_pub" >
-		      <remap from="robot_description" to="rotors_description" />
-		      <param name="tf_prefix" value="uav$(arg ID)"/>
-		    </node>
-		</group>
-
-		<node type="rviz" name="rviz" pkg="rviz" args="-d $(find drones)/launch/config.rviz" />
-
-		<node pkg="drones" type="animation_rviz_node" name="animation_rviz_node" output="screen" />
+		<node pkg="drones" type="animation_rviz_node" name="animation_rviz_node" output="screen">
+			<!--remap from="/gazebo/model_states" to="/gazebo/model_states_fake"/-->
+		</node>
 
 	</group>
 

@@ -9,8 +9,8 @@
 #include <eigen_conversions/eigen_msg.h>
 #include <vector>
 
-#include <formation_control_lib/Formation.h>
-#include <formation_control_lib/FormationLink.h>
+#include <drones/Formation.h>
+#include <drones/FormationLink.h>
 #include <std_msgs/Float32.h>
 
 #include <geometry_msgs/Pose.h>
@@ -52,7 +52,7 @@ namespace rosdrone
       void nullSpaceMotions(Eigen::Vector3d& u, double& w);
 
       // callback functions
-      void bearingMeasuresCallback(const formation_control_lib::Formation& measures);
+      void bearingMeasuresCallback(const drones::Formation& measures);
       void posesCallback(const gazebo_msgs::ModelStates& poses);
 
       // private structures

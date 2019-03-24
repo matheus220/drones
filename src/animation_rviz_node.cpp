@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 
   rosdrone_Animation::animationRviz animation(nh);
 
-  ros::Rate rate(60.0);
+  ros::Rate rate(30.0);
 
   while (ros::ok())
   {

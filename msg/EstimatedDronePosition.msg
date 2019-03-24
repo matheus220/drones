@@ -1,5 +1,0 @@
-string estimator
-string estimated
-geometry_msgs/Pose poseEstimator
-geometry_msgs/Vector3 bearingVector
-float64 distance

@@ -11,8 +11,8 @@ int main(int argc, char** argv)
   rosdrone::outerLoopRT controller(nhg);
   rosdrone::commandCreator command(nhg, nhp);
 
-  ros::Rate rate(20.0);
-  ROS_INFO("Outer loop starting at 20 hz");
+  ros::Rate rate(15.0);
+  ROS_INFO("Outer loop starting at 15 hz");
 
   double time = ros::Time::now().toSec();
 
