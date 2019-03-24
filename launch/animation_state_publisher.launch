@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<arg name="target" default=""/>
+	<arg name="ID" default="1"/>
+	<arg name="mavlink_udp_port" default="14561"/>
+
+	<group ns="uav$(arg ID)">
+		<arg name="cmd" default="$(find xacro)/xacro $(find drones)/models/rotors_description/urdf/iris$(arg target)_base.xacro rotors_description_dir:=$(find drones)/models/rotors_description mavlink_udp_port:=$(arg mavlink_udp_port) target_$(arg ID):=true ID:=$(arg ID) --inorder"/>
+    	<param command="$(arg cmd)" name="rotors_description"/>
+
+    	<node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+	      <remap from="robot_description" to="rotors_description" />
+	      <param name="tf_prefix" value="uav$(arg ID)"/>
+	    </node>
+
+	    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_st_pub" >
+	      <remap from="robot_description" to="rotors_description" />
+	      <param name="tf_prefix" value="uav$(arg ID)"/>
+	    </node>
+	</group>
+
+</launch>

@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<rosparam file="$(find drones)/config/params.yaml" command="load"/>
+
+	<group ns="uav1">
+		<arg name="ID" value="1"/>
+		<node name="target_detector" pkg="drones" type="ball_detector_node" output="screen">
+	        <remap from="/image" to="camera_uav/image_raw"/>
+	        <remap from="/camera_info" to="camera_uav/camera_info"/>
+	        <param name="uav_id" type="int" value="$(arg ID)" />
+	    </node>
+	    <node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
+	        <param name="uav_id" type="int" value="$(arg ID)" />
+	    </node>
+	</group>
+
+	<group ns="uav2">
+		<arg name="ID" value="2"/>
+		<node name="target_detector" pkg="drones" type="ball_detector_node" output="screen">
+	        <remap from="/image" to="camera_uav/image_raw"/>
+	        <remap from="/camera_info" to="camera_uav/camera_info"/>
+	        <param name="uav_id" type="int" value="$(arg ID)" />
+	    </node>
+	    <node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
+	        <param name="uav_id" type="int" value="$(arg ID)" />
+	    </node>
+	</group>
+
+	<group ns="uav3">
+		<arg name="ID" value="3"/>
+		<node name="target_detector" pkg="drones" type="ball_detector_node" output="screen">
+	        <remap from="/image" to="camera_uav/image_raw"/>
+	        <remap from="/camera_info" to="camera_uav/camera_info"/>
+	        <param name="uav_id" type="int" value="$(arg ID)" />
+	    </node>
+	    <node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
+	        <param name="uav_id" type="int" value="$(arg ID)" />
+	    </node>
+	</group>
+
+	<node name="formation_detector_ball" pkg="drones" type="formation_detector_ball.py" output="screen">
+        <remap from="bearing_topic_1" to="/uav1/bearing"/>
+        <remap from="bearing_topic_2" to="/uav2/bearing"/>
+        <remap from="bearing_topic_3" to="/uav3/bearing"/>
+    </node>
+
+	<include file="$(find drones)/launch/animation.launch"/>
+
+	<node pkg="plotjuggler" type="PlotJuggler" name="plotjuggler" output="screen" />
+
+</launch>

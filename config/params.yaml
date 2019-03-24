@@ -1,0 +1,17 @@
+uavs_info:
+  num_uavs: 3
+  uav_1:
+    id: 1
+    r: 255
+    g: 25
+    b: 25
+  uav_2:
+    id: 2
+    r: 0
+    g: 227
+    b: 9
+  uav_3:
+    id: 3
+    r: 20
+    g: 25
+    b: 255

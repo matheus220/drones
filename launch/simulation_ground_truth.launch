@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<rosparam file="$(find drones)/config/params.yaml" command="load"/>
+
+	<group ns="uav1">
+	    <node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
+	        <param name="uav_id" type="int" value="1" />
+	        <remap from="/gazebo/model_states" to="/gazebo/model_states_fake"/>
+	    </node>
+	</group>
+
+	<group ns="uav2">
+	    <node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
+	        <param name="uav_id" type="int" value="2" />
+	        <remap from="/gazebo/model_states" to="/gazebo/model_states_fake"/>
+	    </node>
+	</group>
+
+	<group ns="uav3">
+	    <node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
+	        <param name="uav_id" type="int" value="3" />
+	        <remap from="/gazebo/model_states" to="/gazebo/model_states_fake"/>
+	    </node>
+	</group>
+
+	<include file="$(find fake_qualisys)/launch/fake_qualisys.launch">
+		<arg name="drone_name" value="drone4"/>
+		<arg name="gazebo_drone_link_name" value="iris_1::base_link"/>
+		<arg name="mocap_rate" default="200"/>
+    </include>
+
+    <include file="$(find fake_qualisys)/launch/fake_qualisys.launch">
+		<arg name="drone_name" value="drone5"/>
+		<arg name="gazebo_drone_link_name" value="iris_2::base_link"/>
+		<arg name="mocap_rate" default="200"/>
+    </include>
+
+    <include file="$(find fake_qualisys)/launch/fake_qualisys.launch">
+		<arg name="drone_name" value="drone6"/>
+		<arg name="gazebo_drone_link_name" value="iris_3::base_link"/>
+		<arg name="mocap_rate" default="200"/>
+    </include>
+
+    <node pkg="drones" type="formation_detector.py" name="formation_detector" output="screen" />
+
+	<include file="$(find drones)/launch/animation.launch"/>
+	
+	<node pkg="plotjuggler" type="PlotJuggler" name="plotjuggler" output="screen" />
+
+</launch>

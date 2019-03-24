@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<group ns="uav1">
+		<arg name="ID" value="1"/>
+		<!-- Run the aruco_detect node -->
+		<arg name="camera" default="camera_uav"/>
+		<arg name="image" default="image_raw"/>
+		<arg name="transport" default="compressed"/>
+		<arg name="fiducial_len" default="0.14"/>
+		<arg name="dictionary" default="0"/>
+		<arg name="do_pose_estimation" default="true"/>
+		<arg name="ignore_fiducials" default="" />
+		<arg name="fiducial_len_override" default="" />
+
+		<node pkg="aruco_detect" name="aruco_detect"
+		type="aruco_detect" respawn="false">
+			<param name="image_transport" value="$(arg transport)"/>
+			<param name="publish_images" value="true" />
+			<param name="fiducial_len" value="$(arg fiducial_len)"/>
+			<param name="dictionary" value="$(arg dictionary)"/>
+			<param name="do_pose_estimation" value="$(arg do_pose_estimation)"/>
+			<param name="ignore_fiducials" value="$(arg ignore_fiducials)"/>
+			<param name="fiducial_len_override" value="$(arg fiducial_len_override)"/>
+			<remap from="/camera/compressed" to="$(arg camera)/$(arg image)/$(arg transport)"/>
+			<remap from="/camera_info" to="$(arg camera)/camera_info"/>
+		</node>
+
+		<node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
+	        <param name="uav_id" type="int" value="$(arg ID)" />
+	    </node>
+	</group>
+
+	<group ns="uav2">
+		<arg name="ID" value="2"/>
+		<!-- Run the aruco_detect node -->
+		<arg name="camera" default="camera_uav"/>
+		<arg name="image" default="image_raw"/>
+		<arg name="transport" default="compressed"/>
+		<arg name="fiducial_len" default="0.14"/>
+		<arg name="dictionary" default="0"/>
+		<arg name="do_pose_estimation" default="true"/>
+		<arg name="ignore_fiducials" default="" />
+		<arg name="fiducial_len_override" default="" />
+
+		<node pkg="aruco_detect" name="aruco_detect"
+		type="aruco_detect" respawn="false">
+			<param name="image_transport" value="$(arg transport)"/>
+			<param name="publish_images" value="true" />
+			<param name="fiducial_len" value="$(arg fiducial_len)"/>
+			<param name="dictionary" value="$(arg dictionary)"/>
+			<param name="do_pose_estimation" value="$(arg do_pose_estimation)"/>
+			<param name="ignore_fiducials" value="$(arg ignore_fiducials)"/>
+			<param name="fiducial_len_override" value="$(arg fiducial_len_override)"/>
+			<remap from="/camera/compressed" to="$(arg camera)/$(arg image)/$(arg transport)"/>
+			<remap from="/camera_info" to="$(arg camera)/camera_info"/>
+		</node>
+
+		<node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
+	        <param name="uav_id" type="int" value="$(arg ID)" />
+	    </node>
+	</group>
+
+	<group ns="uav3">
+		<arg name="ID" value="3"/>
+		<!-- Run the aruco_detect node -->
+		<arg name="camera" default="camera_uav"/>
+		<arg name="image" default="image_raw"/>
+		<arg name="transport" default="compressed"/>
+		<arg name="fiducial_len" default="0.14"/>
+		<arg name="dictionary" default="0"/>
+		<arg name="do_pose_estimation" default="true"/>
+		<arg name="ignore_fiducials" default="" />
+		<arg name="fiducial_len_override" default="" />
+
+		<node pkg="aruco_detect" name="aruco_detect"
+		type="aruco_detect" respawn="false">
+			<param name="image_transport" value="$(arg transport)"/>
+			<param name="publish_images" value="true" />
+			<param name="fiducial_len" value="$(arg fiducial_len)"/>
+			<param name="dictionary" value="$(arg dictionary)"/>
+			<param name="do_pose_estimation" value="$(arg do_pose_estimation)"/>
+			<param name="ignore_fiducials" value="$(arg ignore_fiducials)"/>
+			<param name="fiducial_len_override" value="$(arg fiducial_len_override)"/>
+			<remap from="/camera/compressed" to="$(arg camera)/$(arg image)/$(arg transport)"/>
+			<remap from="/camera_info" to="$(arg camera)/camera_info"/>
+		</node>
+
+		<node name="drone_operator" pkg="drones" type="drone_operator" output="screen">
+	        <param name="uav_id" type="int" value="$(arg ID)" />
+	    </node>
+	</group>
+
+	<node name="formation_detector_aruco" pkg="drones" type="formation_detector_aruco" output="screen">
+		<remap from="measures_drone1" to="/uav1/aruco_detect/fiducial_transforms"/>
+        <remap from="measures_drone2" to="/uav2/aruco_detect/fiducial_transforms"/>
+        <remap from="measures_drone3" to="/uav3/aruco_detect/fiducial_transforms"/>
+	</node>
+
+	<include file="$(find drones)/launch/animation.launch"/>
+
+
+
+</launch>
