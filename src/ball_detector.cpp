@@ -15,13 +15,24 @@ ballDetector::ballDetector(const ros::NodeHandle& ng, const ros::NodeHandle& nl)
   bearingPub = nhg.advertise<drones::FormationLink>("bearing", 1);
 
   // initialize values
-  sat_ = 100;
+  sat_ = 130;
   val_ = 100;
   infoDetection.ballRadius = 0.09;
   infoDetection.t_ball2drone = Eigen::Vector3d(0,0,0.15);
   infoDetection.t_camera2drone = Eigen::Vector3d(0.07, 0.0, 0.055);
   getParametersROS();
   outputMessage.drone_name = "drone" + std::to_string(paramsROS.drone_ID);
+  show_segment_ = false;
+  show_output_ = false;
+
+  if(show_segment_ || show_output_)
+  {
+    cv::namedWindow("Color detector - range");
+    cv::createTrackbar( "Saturation", "Color detector - range", &sat_, 255);
+    cv::createTrackbar( "Value", "Color detector - range", &val_, 255);
+    cv::setTrackbarPos("Saturation", "Color detector - range", 130);
+    cv::setTrackbarPos("Value", "Color detector - range", 95);
+  }
 
   ROS_INFO_STREAM("drone" << paramsROS.drone_ID << "Ball Detector initialized");
 }
@@ -30,6 +41,7 @@ void ballDetector::spinDetector()
 {
   if (img_received)
   {
+    std::vector<cv::Vec3f> circles;
     for(auto rgb : paramsROS.drones_color)
     {
         int target_id = rgb.first;
@@ -44,12 +56,18 @@ void ballDetector::spinDetector()
         if (measure)
         {
           addMeasureToOutput(target_id, circle);
-
-          cv::Point center(std::round(circle[0]), std::round(circle[1]));
-          int radius = std::round(circle[2]);
-          cv::circle(img, center, radius, cv::Scalar(248, 28, 148), 2);
+          circles.push_back(circle);
         }
     }
+
+    for(auto circle : circles)
+    {
+      cv::Point center(std::round(circle[0]), std::round(circle[1]));
+      int radius = std::round(circle[2]);
+      cv::circle(img, center, radius, cv::Scalar(248, 28, 148), 2);
+    }
+    circles.clear();
+
     cv::cvtColor(img, img_processed, cv::COLOR_BGR2RGB);
     imagePub.publish(cv_bridge::CvImage(std_msgs::Header(), "rgb8", img_processed).toImageMsg());
     bearingPub.publish(outputMessage);
@@ -115,7 +133,7 @@ std::vector<cv::Point> ballDetector::findMainContour(const cv::Mat &_im)
 {
     cv::Mat img_, seg1_, seg2_;
     cv::cvtColor(_im, img_, cv::COLOR_BGR2HSV);
-    cv::GaussianBlur(img_, img_, cv::Size(9,9), 2);
+    cv::GaussianBlur(img_, img_, cv::Size(11,11), 2);
 
     if(hue_.size())
     {
@@ -128,6 +146,19 @@ std::vector<cv::Point> ballDetector::findMainContour(const cv::Mat &_im)
             cv::inRange(img_, cv::Scalar(hue_[2], sat_, val_),
                     cv::Scalar(hue_[3], 255, 255), seg2_);
             seg1_ += seg2_;
+        }
+
+        if(show_segment_)
+        {
+            cv::imshow("Color detector - range", seg1_);
+            if(!show_output_)
+                cv::waitKey(1);
+        }
+
+        if(show_output_)
+        {
+            cv::imshow("Color detector output",seg1_);
+            cv::waitKey(1);
         }
 
         std::vector<std::vector<cv::Point> > contours;
@@ -181,14 +212,21 @@ bool ballDetector::process(const cv::Mat &_im, cv::Vec3f& circle, bool write_out
         return false;
     }
 
-    cv::Point2f pt;float radius;
+    cv::Point2f pt; float radius;
     cv::minEnclosingCircle(contour, pt, radius);
 
-    circle[0] = pt.x;
-    circle[1] = pt.y;
-    circle[2] = radius;
-
-    return true;
+    double area = cv::contourArea(contour);
+    if(area > 0.5*M_PI*pow(radius,2) && radius > 10.0)
+    {
+      circle[0] = pt.x;
+      circle[1] = pt.y;
+      circle[2] = radius;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
 }
 
 bool ballDetector::detectColorfulCirclesHUE(cv::Mat& img,
@@ -314,7 +352,7 @@ void ballDetector::kalmanFilterProcess(const bool measure,
         // Initialization
         KF->kf.errorCovPre.at<float>(0) = 0.01;
         KF->kf.errorCovPre.at<float>(6) = 0.01;
-        KF->kf.errorCovPre.at<float>(12) = 0.1;
+        KF->kf.errorCovPre.at<float>(12) = 0.01;
         KF->kf.errorCovPre.at<float>(18) = 0.001;
         KF->kf.errorCovPre.at<float>(24) = 0.001;
 

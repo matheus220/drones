@@ -47,9 +47,9 @@ struct KalmanFilter
     kf.processNoiseCov.at<float>(24) = 1e-3;
 
     kf.measurementNoiseCov = cv::Mat::zeros(measSize, measSize, CV_32F);
-    kf.measurementNoiseCov.at<float>(0) = 0.08;
-    kf.measurementNoiseCov.at<float>(4) = 0.08;
-    kf.measurementNoiseCov.at<float>(8) = 0.7;
+    kf.measurementNoiseCov.at<float>(0) = 5e-3;
+    kf.measurementNoiseCov.at<float>(4) = 5e-3;
+    kf.measurementNoiseCov.at<float>(8) = 5e-1;
   }
   KalmanFilter() : KalmanFilter(5,3) {}
 
@@ -133,10 +133,9 @@ class ballDetector
     cv::Mat img, img_processed;
     bool img_received = false;
     std::vector<int> hue_;
+    bool show_segment_ = false, show_output_ = false;
     int sat_ = 100;
     int val_ = 100;
-
-    bool show_segment_ = false;
 };
 }
 
