@@ -80,14 +80,14 @@ namespace rosdrone
 
   void outerLoopRT::setVelocityCommand()
   {
-    if(ros::Time::now().toSec() - last_service_call > 10.0)
+    if(ros::Time::now().toSec() - last_service_call > 15.0)
     {
       ROS_INFO_ONCE("Bearing control enabled!");
       vel_command = sharedTwist;
     }
     else
     {
-      double u = (2.0 - pose.p[2]);
+      double u = 1.5*(2.0 - pose.p[2]);
       tf::vectorEigenToMsg(Eigen::Vector3d(0,0,u), vel_command.linear);
       tf::vectorEigenToMsg(Eigen::Vector3d(0,0,0), vel_command.angular);
     }

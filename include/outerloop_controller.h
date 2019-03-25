@@ -70,7 +70,7 @@ namespace rosdrone
 
       // private variables
       double last_service_call = 0;
-      double serviceDelay = 3;
+      double serviceDelay = 5;
   };
 }
 #endif // OUTERLOOP_CONTROLLER_H
