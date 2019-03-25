@@ -31,8 +31,8 @@ animationRviz::~animationRviz()
 void animationRviz::setRelativeBearingDesired()
 {
   std::vector<Eigen::Vector3d> drones;
-  drones.emplace_back(-1, 0, 0);
-  drones.emplace_back(sqrt(2)/2, sqrt(2)/2, 0);
+  drones.emplace_back(-1, 0, -0.2);
+  drones.emplace_back(sqrt(2)/2, sqrt(2)/2, 0.2);
   drones.emplace_back(sqrt(2)/2, -sqrt(2)/2, 0);
 
   Eigen::Matrix3d Rtemp;
@@ -102,8 +102,8 @@ void animationRviz::addMeasuresArrows()
   {
     // int id_drone = vectorMeasures[i].drone_name.at(vectorMeasures[i].drone_name.length() - 1) - 48 - 3 ;
     // int id_target = vectorMeasures[i].target_name.at(vectorMeasures[i].target_name.length() - 1) - 48 - 3;
-    int id_drone = vectorMeasures[i].drone_name.at(vectorMeasures[i].drone_name.length() - 1) - 48-3;
-    int id_target = vectorMeasures[i].target_name.at(vectorMeasures[i].target_name.length() - 1) - 48-3;
+    int id_drone = vectorMeasures[i].drone_name.at(vectorMeasures[i].drone_name.length() - 1) - 48;
+    int id_target = vectorMeasures[i].target_name.at(vectorMeasures[i].target_name.length() - 1) - 48;
     Eigen::Vector3i color(1, 0, 1);
     addMarker(id_drone, id_target, vectorMeasures[i].bearing, "measure", color, vectorMeasures[i].distance, 0.03);
   }
