@@ -36,7 +36,8 @@ void ballDetector::spinDetector()
         colorRGB2HUE(rgb.second[0], rgb.second[1], rgb.second[2]);
 
         cv::Vec3f circle;
-        bool measure = detectColorfulCirclesHUE(img, circle);
+        //bool measure = detectColorfulCirclesHUE(img, circle);
+        bool measure = process(img,circle);
 
         kalmanFilterProcess(measure, circle, target_id);
 
@@ -46,7 +47,7 @@ void ballDetector::spinDetector()
 
           cv::Point center(std::round(circle[0]), std::round(circle[1]));
           int radius = std::round(circle[2]);
-          cv::circle(img, center, radius, cv::Scalar(255, 0, 128), 2);
+          cv::circle(img, center, radius, cv::Scalar(248, 28, 148), 2);
         }
     }
     cv::cvtColor(img, img_processed, cv::COLOR_BGR2RGB);
@@ -110,6 +111,86 @@ void ballDetector::imgBGRtoimgHUE(cv::Mat& img)
   }
 }
 
+std::vector<cv::Point> ballDetector::findMainContour(const cv::Mat &_im)
+{
+    cv::Mat img_, seg1_, seg2_;
+    cv::cvtColor(_im, img_, cv::COLOR_BGR2HSV);
+    cv::GaussianBlur(img_, img_, cv::Size(9,9), 2);
+
+    if(hue_.size())
+    {
+        // segment for detection of given RGB (from Hue)
+        cv::inRange(img_, cv::Scalar(hue_[0], sat_, val_),
+                cv::Scalar(hue_[1], 255, 255), seg1_);
+        // add for 2nd detection if near red
+        if(hue_.size() == 4)
+        {
+            cv::inRange(img_, cv::Scalar(hue_[2], sat_, val_),
+                    cv::Scalar(hue_[3], 255, 255), seg2_);
+            seg1_ += seg2_;
+        }
+
+        std::vector<std::vector<cv::Point> > contours;
+        std::vector<cv::Vec4i> hierarchy;
+        cv::findContours( seg1_, contours, hierarchy, CV_RETR_CCOMP,
+                          CV_CHAIN_APPROX_SIMPLE);
+
+        // pop all children
+        bool found = true;
+        while(found)
+        {
+            found = false;
+            for(unsigned int i=0;i<hierarchy.size();++i)
+            {
+                if(hierarchy[i][3] > -1)
+                {
+                    found = true;
+                    hierarchy.erase(hierarchy.begin()+i,hierarchy.begin()+i+1);
+                    contours.erase(contours.begin()+i, contours.begin()+i+1);
+                    break;
+                }
+            }
+        }
+
+        if(contours.size())
+        {
+            // get largest contour
+            auto largest = std::max_element(
+                        contours.begin(), contours.end(),
+                        [](const std::vector<cv::Point> &c1, const std::vector<cv::Point> &c2)
+            {return cv::contourArea(c1) < cv::contourArea(c2);});
+            int idx = std::distance(contours.begin(), largest);
+
+            return contours[idx];
+        }
+    }
+    else
+    {
+        std::cout << "Color detector: RGB to detect was not defined\n";
+
+    }
+    return std::vector<cv::Point>();
+}
+
+bool ballDetector::process(const cv::Mat &_im, cv::Vec3f& circle, bool write_output)
+{
+    auto contour = findMainContour(_im);
+
+    if(!contour.size())
+    {
+        return false;
+    }
+
+    cv::Point2f pt;float radius;
+    cv::minEnclosingCircle(contour, pt, radius);
+
+    circle[0] = pt.x;
+    circle[1] = pt.y;
+    circle[2] = radius;
+
+    return true;
+}
+
 bool ballDetector::detectColorfulCirclesHUE(cv::Mat& img,
                                               cv::Vec3f& circle,
                                               bool write_circle)
@@ -136,15 +217,15 @@ bool ballDetector::detectColorfulCirclesHUE(cv::Mat& img,
     int idx = std::distance(circles.begin(), largest);
     circle = circles[idx];
 
-    double new_radius;
+    /*double new_radius;
     if (bestRadiusEstimation(new_radius, img, circle) && new_radius <= circle[2])
-      circle[2] = new_radius;
+      circle[2] = new_radius;*/
 
     if (write_circle)
     {
       cv::Point center(std::round(circle[0]), std::round(circle[1]));
       int radius = std::round(circle[2]);
-      cv::circle(img, center, radius, cv::Scalar(255, 0, 144), 2);
+      cv::circle(img, center, radius, cv::Scalar(248, 24, 148), 1);
     }
 
     return true;
@@ -233,7 +314,7 @@ void ballDetector::kalmanFilterProcess(const bool measure,
         // Initialization
         KF->kf.errorCovPre.at<float>(0) = 0.01;
         KF->kf.errorCovPre.at<float>(6) = 0.01;
-        KF->kf.errorCovPre.at<float>(12) = 0.01;
+        KF->kf.errorCovPre.at<float>(12) = 0.1;
         KF->kf.errorCovPre.at<float>(18) = 0.001;
         KF->kf.errorCovPre.at<float>(24) = 0.001;
 

@@ -42,14 +42,14 @@ struct KalmanFilter
     kf.processNoiseCov = cv::Mat::zeros(stateSize, stateSize, CV_32F);
     kf.processNoiseCov.at<float>(0) = 1e-3;
     kf.processNoiseCov.at<float>(6) = 1e-3;
-    kf.processNoiseCov.at<float>(12) = 1e-1;
+    kf.processNoiseCov.at<float>(12) = 1e-3;
     kf.processNoiseCov.at<float>(18) = 1e-3;
     kf.processNoiseCov.at<float>(24) = 1e-3;
 
     kf.measurementNoiseCov = cv::Mat::zeros(measSize, measSize, CV_32F);
-    kf.measurementNoiseCov.at<float>(0) = 4e-2;
-    kf.measurementNoiseCov.at<float>(4) = 4e-2;
-    kf.measurementNoiseCov.at<float>(8) = 1;
+    kf.measurementNoiseCov.at<float>(0) = 0.08;
+    kf.measurementNoiseCov.at<float>(4) = 0.08;
+    kf.measurementNoiseCov.at<float>(8) = 0.7;
   }
   KalmanFilter() : KalmanFilter(5,3) {}
 
@@ -80,6 +80,9 @@ class ballDetector
     void imgBGRtoimgHUE(cv::Mat& img);
     bool detectColorfulCirclesHUE(cv::Mat& img, cv::Vec3f& circle, bool write_circle = false);
     bool bestRadiusEstimation(double& radius, const cv::Mat& image, const cv::Vec3f& circle);
+
+    std::vector<cv::Point> findMainContour(const cv::Mat &_im);
+    bool process(const cv::Mat &_im, cv::Vec3f& circle, bool write_output = false);
 
     void kalmanFilterProcess(const bool measure,
                              cv::Vec3f& circle,
