@@ -40,7 +40,7 @@ source ~/catkin_ws/devel/setup.bash
 roslaunch drones multi_uav_mavros_sitl.launch
 ```
 
-> Some **ERROR** and **WARN** messages may appear on the console, however, this does not detract from the simulation. This happens when the noises of the simulator's sensors are set to zero ([here](https://github.com/matheus220/drones/blob/2c0f5575932d1d47c93e536415be9b7906dac191/models/rotors_description/urdf/iris_base.xacro#L55) and [here](https://github.com/matheus220/drones/blob/2c0f5575932d1d47c93e536415be9b7906dac191/models/rotors_description/urdf/iris_base.xacro#L82-L117)).
+> Some **ERROR** and **WARN** messages may appear on the console, however, this does not affect the simulation. This happens when the noises of the simulator's sensors are set to zero ([here](https://github.com/matheus220/drones/blob/2c0f5575932d1d47c93e536415be9b7906dac191/models/rotors_description/urdf/iris_base.xacro#L55) and [here](https://github.com/matheus220/drones/blob/2c0f5575932d1d47c93e536415be9b7906dac191/models/rotors_description/urdf/iris_base.xacro#L82-L117)).
 
 #### Launch controller
 
