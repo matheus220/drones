@@ -5,7 +5,7 @@ Robotic project 2019 - École Centrale Nantes
 
 ### Assumptions
 
-It is necessary to have the following ROS packages : [`mavros`,`mavlink`](https://dev.px4.io/en/ros/mavros_installation.html), 
+It is necessary to have the following ROS packages : [`mavros`, `mavlink`](https://dev.px4.io/en/ros/mavros_installation.html), 
 [`aruco_detect`](https://github.com/UbiquityRobotics/fiducials.git), [`qualisys`](https://github.com/KumarRobotics/qualisys.git), `fake_qualisys` and [`plotjuggler`](https://github.com/facontidavide/PlotJuggler.git)
 
 ### Clone the PX4/Firmware code, then build the SITL code
