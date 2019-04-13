@@ -204,13 +204,13 @@ void commandCreator::bearingMeasuresCallback(const drones::Formation& measures)
   for (int i=0; i<measures.links.size(); i++)
   {
     string drone_name = measures.links[i].drone_name;
-    // int drone_id = drone_name[drone_name.length()-1] - 48 - 3;
-    int drone_id = drone_name[drone_name.length()-1] - 48 - 3;
+    // int drone_id = drone_name[drone_name.length()-1] - 48 - 3; // experimental
+    int drone_id = drone_name[drone_name.length()-1] - 48; // simulation
     for (int j=0; j<measures.links[i].targets.size(); j++)
     {
       string target_name = measures.links[i].targets[j];
-      // int target_id = target_name[target_name.length()-1] - 48 - 3;
-      int target_id = target_name[target_name.length()-1] - 48 - 3;
+      // int target_id = target_name[target_name.length()-1] - 48 - 3; // experimental
+      int target_id = target_name[target_name.length()-1] - 48; // simulation
 
       Eigen::Vector3d bearing;
       tf::vectorMsgToEigen(measures.links[i].bearings[j], bearing);

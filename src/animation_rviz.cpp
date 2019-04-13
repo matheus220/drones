@@ -100,10 +100,10 @@ void animationRviz::addMeasuresArrows()
 {
   for (int i = 0; i < vectorMeasures.size(); i++)
   {
-    // int id_drone = vectorMeasures[i].drone_name.at(vectorMeasures[i].drone_name.length() - 1) - 48 - 3 ;
-    // int id_target = vectorMeasures[i].target_name.at(vectorMeasures[i].target_name.length() - 1) - 48 - 3;
-    int id_drone = vectorMeasures[i].drone_name.at(vectorMeasures[i].drone_name.length() - 1) - 48 - 3;
-    int id_target = vectorMeasures[i].target_name.at(vectorMeasures[i].target_name.length() - 1) - 48 - 3;
+    // int id_drone = vectorMeasures[i].drone_name.at(vectorMeasures[i].drone_name.length() - 1) - 48 - 3 ; // experimental
+    // int id_target = vectorMeasures[i].target_name.at(vectorMeasures[i].target_name.length() - 1) - 48 - 3; // experimental
+    int id_drone = vectorMeasures[i].drone_name.at(vectorMeasures[i].drone_name.length() - 1) - 48; // simulation
+    int id_target = vectorMeasures[i].target_name.at(vectorMeasures[i].target_name.length() - 1) - 48; // simulation
     Eigen::Vector3i color(1, 0, 1);
     addMarker(id_drone, id_target, vectorMeasures[i].bearing, "measure", color, vectorMeasures[i].distance, 0.03);
   }
