@@ -29,7 +29,6 @@ export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/Firmware:~/Firmware/Tools/sitl_gazeb
 ```sh
 cd ~/catkin_ws/src
 git clone https://github.com/matheus220/drones.git
-git checkout experimental
 catkin build drones
 source ~/catkin_ws/devel/setup.bash
 ```
