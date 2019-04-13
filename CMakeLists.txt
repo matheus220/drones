@@ -25,6 +25,7 @@ add_message_files(
   FILES
   Formation.msg
   FormationLink.msg
+  FormationControl.msg
 )
 
 generate_messages(

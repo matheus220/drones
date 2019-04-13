@@ -100,7 +100,7 @@ int main(int argc, char** argv)
   t_camera2drone << 0.07, 0.0, 0.055;
   t_target2baseLink << 0.0, -0.16, -0.085;
 
-  ros::Rate rate(5.0);
+  ros::Rate rate(15.0);
 
   while (ros::ok())
   {

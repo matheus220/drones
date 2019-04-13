@@ -25,31 +25,5 @@
 	    </node>
 	</group>
 
-	<include file="$(find fake_qualisys)/launch/fake_qualisys.launch">
-		<arg name="drone_name" value="drone4"/>
-		<arg name="gazebo_drone_link_name" value="iris_1::base_link"/>
-		<arg name="mocap_rate" default="200"/>
-    </include>
-
-    <include file="$(find fake_qualisys)/launch/fake_qualisys.launch">
-		<arg name="drone_name" value="drone5"/>
-		<arg name="gazebo_drone_link_name" value="iris_2::base_link"/>
-		<arg name="mocap_rate" default="200"/>
-    </include>
-
-	<node pkg="qualisys"
-		type="qualisys_node"
-		name="qualisys"
-		output="screen">
-		<param name="server_address" value="192.168.0.10"/>
-		<param name="base_port" value="22222"/>
-		<param name="publish_tf" value="false"/>
-	</node>
-
-	<include file="$(find drones)/launch/animation.launch"/>
-
-	<node pkg="drones" type="formation_detector.py" name="formation_detector" output="screen" />
-
-	<!--node pkg="plotjuggler" type="PlotJuggler" name="plotjuggler" output="screen" /-->
-
 </launch>
+

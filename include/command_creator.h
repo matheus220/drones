@@ -11,7 +11,9 @@
 
 #include <drones/Formation.h>
 #include <drones/FormationLink.h>
+#include <drones/FormationControl.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/Float32MultiArray.h>
 
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Twist.h>
@@ -54,6 +56,7 @@ namespace rosdrone
       // callback functions
       void bearingMeasuresCallback(const drones::Formation& measures);
       void posesCallback(const gazebo_msgs::ModelStates& poses);
+      void formationControlCallback(const drones::FormationControl& control);
 
       // private structures
       struct ControlParams
@@ -95,11 +98,14 @@ namespace rosdrone
       Eigen::Matrix3d S;
       Eigen::Matrix3d I;
       double start_time;
+      double _rotation, _scale;
+      Eigen::Vector3d _position;
+      bool formation_control_active = false;
 
       // ROS Communication
       ros::NodeHandle nh, nhp;
       ros::Publisher errorFPub, errorDist, desiredDist;
-      ros::Subscriber poseSub, bearings_sub;
+      ros::Subscriber poseSub, bearings_sub, formationControlSub;
 
       // private variables
       int drone_ID;

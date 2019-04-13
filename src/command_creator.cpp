@@ -10,7 +10,6 @@ commandCreator::commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle&
 {
   // initialize values
   getROSParameters();
-  desired_edges = { {1, 2}, {1,3}, {2,1}, {3,2} };
   S <<  0, -1, 0, 1, 0, 0, 0, 0, 0;
   I = Eigen::Matrix3d::Identity();
   start_time = ros::Time::now().toSec();
@@ -19,6 +18,7 @@ commandCreator::commandCreator(const ros::NodeHandle& ng, const ros::NodeHandle&
   // initialize communications
   bearings_sub = nh.subscribe("/bearings", 2, &commandCreator::bearingMeasuresCallback, this);
   poseSub = nh.subscribe("/gazebo/model_states", 2, &commandCreator::posesCallback, this);
+  formationControlSub = nh.subscribe("/formation_control", 2, &commandCreator::formationControlCallback, this);
 
   if(drone_ID == 2) errorFPub = nh.advertise<std_msgs::Float32>("errorF", 2);
   if(drone_ID == 1) errorDist = nh.advertise<std_msgs::Float32>("errorDist", 2);
@@ -79,8 +79,8 @@ void commandCreator::publishError()
 void commandCreator::setRelativeBearingDesired()
 {
   std::vector<Eigen::Vector3d> drones;
-  drones.emplace_back(-1, 0, 0);
-  drones.emplace_back(sqrt(2)/2, sqrt(2)/2, 0);
+  drones.emplace_back(-1, 0, -0.3);
+  drones.emplace_back(sqrt(2)/2, sqrt(2)/2, 0.3);
   drones.emplace_back(sqrt(2)/2, -sqrt(2)/2, 0);
 
   Eigen::Matrix3d Rtemp;
@@ -144,28 +144,25 @@ void commandCreator::calculateVelocityCommand()
 
 void commandCreator::nullSpaceMotions(Eigen::Vector3d& u, double& w)
 {
-  if(ros::Time::now().toSec() - start_time > 60)
+  if(formation_control_active)
   {
     ROS_INFO_ONCE("Null-space motions initialized");
+    Eigen::Vector3d centroid, translation_vel;
     double rotation, scale;
-    Eigen::Vector3d translation, centroid;
     for (auto drone : posesGazebo)
     {
       centroid += drone.second.p;
     }
     centroid /= posesGazebo.size();
 
-    double t = ros::Time::now().toSec() - 60;
+    translation_vel = 0.3*(_position - centroid);
 
-    translation << 0.1*std::sin(t/20), 0.05*std::cos(t/20), 0;
-
-    translation << 0, 0, 0;
-    rotation = 0.0;
-    scale = 0.0;
+    rotation = _rotation;
+    scale = _scale;
 
     auto poseInfo = posesGazebo[drone_ID];
 
-    u += poseInfo.R.transpose() * (translation + scale*(poseInfo.p - centroid) + rotation*S*(poseInfo.p - centroid));
+    u += poseInfo.R.transpose() * (translation_vel + scale*(poseInfo.p - centroid) + rotation*S*(poseInfo.p - centroid));
     w += rotation;
   }
 }
@@ -208,12 +205,12 @@ void commandCreator::bearingMeasuresCallback(const drones::Formation& measures)
   {
     string drone_name = measures.links[i].drone_name;
     // int drone_id = drone_name[drone_name.length()-1] - 48 - 3;
-    int drone_id = drone_name[drone_name.length()-1] - 48-3;
+    int drone_id = drone_name[drone_name.length()-1] - 48 - 3;
     for (int j=0; j<measures.links[i].targets.size(); j++)
     {
       string target_name = measures.links[i].targets[j];
       // int target_id = target_name[target_name.length()-1] - 48 - 3;
-      int target_id = target_name[target_name.length()-1] - 48-3;
+      int target_id = target_name[target_name.length()-1] - 48 - 3;
 
       Eigen::Vector3d bearing;
       tf::vectorMsgToEigen(measures.links[i].bearings[j], bearing);
@@ -239,6 +236,14 @@ void commandCreator::posesCallback(const gazebo_msgs::ModelStates& poses)
       posesGazebo[id].psi = getYawFromQuaternion(poses.pose[i].orientation);
     }
   }
+}
+
+void commandCreator::formationControlCallback(const drones::FormationControl& control)
+{
+  formation_control_active = true;
+  tf::vectorMsgToEigen(control.position, _position);
+  _rotation = control.rotation.data;
+  _scale = control.scale.data;
 }
 // end of namespace rosdrone_Command
 }

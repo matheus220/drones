@@ -40,16 +40,16 @@ struct KalmanFilter
     kf.measurementMatrix.at<float>(12) = 1.0f;
 
     kf.processNoiseCov = cv::Mat::zeros(stateSize, stateSize, CV_32F);
-    kf.processNoiseCov.at<float>(0) = 1e-3;
-    kf.processNoiseCov.at<float>(6) = 1e-3;
-    kf.processNoiseCov.at<float>(12) = 1e-3;
-    kf.processNoiseCov.at<float>(18) = 1e-3;
-    kf.processNoiseCov.at<float>(24) = 1e-3;
+    kf.processNoiseCov.at<float>(0) = 1e-4;
+    kf.processNoiseCov.at<float>(6) = 1e-4;
+    kf.processNoiseCov.at<float>(12) = 1e-4;
+    kf.processNoiseCov.at<float>(18) = 1e-4;
+    kf.processNoiseCov.at<float>(24) = 1e-4;
 
     kf.measurementNoiseCov = cv::Mat::zeros(measSize, measSize, CV_32F);
-    kf.measurementNoiseCov.at<float>(0) = 5e-3;
-    kf.measurementNoiseCov.at<float>(4) = 5e-3;
-    kf.measurementNoiseCov.at<float>(8) = 5e-1;
+    kf.measurementNoiseCov.at<float>(0) = 1e-4;
+    kf.measurementNoiseCov.at<float>(4) = 1e-4;
+    kf.measurementNoiseCov.at<float>(8) = 5e-3;
   }
   KalmanFilter() : KalmanFilter(5,3) {}
 
